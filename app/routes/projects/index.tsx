@@ -31,7 +31,7 @@ export default function Projects() {
             <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
                 {projects.map((p) => (
                     <div key={p.id} className='p-3'>
-                        <Link to={`/projects/${p.id}`}>
+                        <Link to={p.id}>
                             <h3>{p.name}</h3>
                         </Link>
                         <p>
