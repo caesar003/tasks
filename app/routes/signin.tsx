@@ -5,11 +5,11 @@ export default function Signin() {
                 <fieldset className='flex justify-center space-x-4 border bg-yellow-100 rounded p-4 py-3 mb-2'>
                     <legend className='text-2xl'>Login or Register</legend>
                     <label>
-                        <input type='radio' name='loginType' value='signin' />{' '}
+                        <input type='radio' name='loginType' value='signin' />
                         Sign in
                     </label>
                     <label>
-                        <input type='radio' name='loginType' value='signup' />{' '}
+                        <input type='radio' name='loginType' value='signup' />
                         Sign up
                     </label>
                 </fieldset>
