@@ -1,4 +1,13 @@
-import { Link, Links, LiveReload, Meta, Outlet } from '@remix-run/react';
+import { useState } from 'react';
+
+import {
+	Link,
+	Links,
+	LiveReload,
+	Meta,
+	Outlet,
+	Scripts,
+} from '@remix-run/react';
 
 import styles from './styles/app.css';
 
@@ -32,12 +41,17 @@ function Document({children, title}) {
             <body>
                 {children}
                 <LiveReload />
+                <Scripts />
             </body>
         </html>
     );
 }
 
 function Layout({children}) {
+    const [isMenuShown, showMenu] = useState(false);
+    const handleClick = (par) => {
+        console.log(par);
+    };
     return (
         <>
             <nav className='relative container mx-auto p-6'>
@@ -72,6 +86,29 @@ function Layout({children}) {
                     >
                         Try it
                     </Link>
+
+                    {/* Hamburger Icon */}
+                    <button
+                        onClick={() => showMenu(!isMenuShown)}
+                        id='navbar-icon'
+                        className={`block hamburger md:hidden focus:outline-none ${
+                            isMenuShown && 'open'
+                        }`}
+                    >
+                        <span className='hamburger-top'></span>
+                        <span className='hamburger-middle'></span>
+                        <span className='hamburger-bottom'></span>
+                    </button>
+                </div>
+                {/* Mobile Menu */}
+                <div
+                    id='menu'
+                    className={`absolute flex-col items-center ${
+                        isMenuShown ? 'flex' : 'hidden'
+                    } self-end py-8 mt-10 space-y-6 font-bold bg-white sm:w-auto sm:self-center left-6 right-6 drop-shadow-md`}
+                >
+                    <Link to={'/projects'}>Projects</Link>
+                    <Link to={'./signin'}>Sign in</Link>
                 </div>
             </nav>
             <div className='container mx-auto p-6'>{children}</div>
