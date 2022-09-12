@@ -30,9 +30,9 @@ export default function Projects() {
 
             <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
                 {projects.map((p) => (
-                    <div key={p.id} className='p-3'>
+                    <div key={p.id} className='p-3 border rounded bg-slate'>
                         <Link to={p.id}>
-                            <h3>{p.name}</h3>
+                            <h3 className='font-bold text-2xl'>{p.name}</h3>
                         </Link>
                         <p>
                             {`Created by ${p.createdBy}, ${new Date(
