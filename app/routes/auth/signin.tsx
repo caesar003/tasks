@@ -1,11 +1,21 @@
-import { useState } from 'react';
-import { db } from '~/utils/db.server';
-import { signin, createUserSession} from '~/utils/session.server';
-// import { signin } from '~/utils/session.server';
+import {useState} from 'react';
+import {db} from '~/utils/db.server';
+import {
+    signin,
+    createUserSession,
+    signup,
+    getUser,
+} from '~/utils/session.server';
+import {useLoaderData} from '@remix-run/react';
+import {json, redirect} from '@remix-run/node';
+import {useActionData} from '@remix-run/react';
 
-import { json, redirect } from '@remix-run/node';
-import { useActionData } from '@remix-run/react';
-
+export const loader = async ({request}) => {
+    console.log(request);
+    const user = await getUser(request);
+    if (user) return redirect('/');
+    return null;
+};
 const validateForm = (fields) => {
     const {loginType: Ty, username: u, password: p, password2: ss} = fields;
     let username = '';
@@ -54,16 +64,33 @@ export const action = async ({request}) => {
                     fields,
                     fieldErrors: {username: 'Invalid credentials'},
                 });
-            else console.log(user);    
+            else console.log(user);
             return createUserSession(user.id, '/projects');
         }
         case 'signup': {
-            // ! TODO
+            const userExists = await db.user.findFirst({
+                where: {
+                    username,
+                },
+            });
+
+            if (userExists)
+                return badRequest({
+                    fields,
+                    fieldErrors: {username: `User ${username} already exists!`},
+                });
+
+            const user = await signup({username, password});
+            if (!user) {
+                return badRequest({
+                    fields,
+                    formError: 'something went wrong',
+                });
+            }
+
+            return createUserSession(user.id, '/projects');
         }
-        
     }
-
-
 
     // console.log(fields);
     return {fields, fieldErrors};

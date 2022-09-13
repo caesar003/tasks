@@ -16,6 +16,15 @@ export async function signin({username, password}) {
     return user;
 }
 
+export async function signup({username, password}) {
+    const passwordHash = await bcrypt.hash(password, 10);
+    return db.user.create({
+        data: {
+            username,
+            passwordHash,
+        },
+    });
+}
 const sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) throw new Error('No session secret');
 

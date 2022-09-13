@@ -1,13 +1,17 @@
-import { Outlet } from '@remix-run/react';
+import {Outlet} from '@remix-run/react';
+import {getUser} from '~/utils/session.server';
+import {useLoaderData} from '@remix-run/react';
+import {redirect} from '@remix-run/node';
 
+export const loader = async ({request}) => {
+    console.log(request);
+    const user = await getUser(request);
+    if (!user) return redirect('/auth/signin');
+    return null;
+};
 export default function Index() {
     return (
         <div>
-            <h1>Projects People Working On</h1>
-            <h1>
-                This will basically be sign in form if the user is not signing
-                in
-            </h1>
             <Outlet />
         </div>
     );

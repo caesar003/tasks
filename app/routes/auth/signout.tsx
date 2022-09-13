@@ -6,5 +6,5 @@ export const action = async ({request}) => {
 };
 
 export const loader = async () => {
-    return redirect('/');
+    return redirect('/auth/signin');
 };

@@ -1,13 +1,17 @@
-import { db } from '~/utils/db.server';
+import {db} from '~/utils/db.server';
 
-import { Link, useActionData, useLoaderData } from '@remix-run/react';
+import {Link, useActionData, useLoaderData} from '@remix-run/react';
+import {getUser} from '~/utils/session.server';
+import {redirect} from '@remix-run/node';
 
-export const loader = async () => {
+export const loader = async ({request}) => {
+    const user = await getUser(request);
+    if (!user) return redirect('/auth/signin');
     const data = {
         projects: await db.project.findMany(),
     };
 
-    console.log(data);
+    // console.log(data);
     return data;
 };
 

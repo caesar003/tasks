@@ -117,7 +117,15 @@ function Layout({children}) {
                     } self-end py-8 mt-10 space-y-6 font-bold bg-white sm:w-auto sm:self-center left-6 right-6 drop-shadow-md`}
                 >
                     <Link to={'/projects'}>Projects</Link>
-                    <Link to={'./auth/signin'}>Sign in</Link>
+                    {user ? (
+                        <form action='/auth/signout' method='post'>
+                            <button className='' type='submit'>
+                                Sign out
+                            </button>
+                        </form>
+                    ) : (
+                        <Link to='./auth/signin'>Sign In</Link>
+                    )}
                 </div>
             </nav>
             <div className='container mx-auto p-6'>{children}</div>

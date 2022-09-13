@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { db } from '~/utils/db.server';
+import {useState} from 'react';
+import {db} from '~/utils/db.server';
 
-import { redirect } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import {redirect} from '@remix-run/node';
+import {useLoaderData} from '@remix-run/react';
 
-export const loader = async ({params}) => {
+export const loader = async ({params, request}) => {
     const project = await db.project.findUnique({
         where: {id: params.projectId},
     });
