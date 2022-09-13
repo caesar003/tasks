@@ -1,14 +1,8 @@
-import { useState } from 'react';
+import {useState} from 'react';
 
-import {
-	Link,
-	Links,
-	LiveReload,
-	Meta,
-	Outlet,
-	Scripts,
-} from '@remix-run/react';
-
+import {Link, Links, LiveReload, Meta, Outlet, Scripts} from '@remix-run/react';
+import {useLoaderData} from '@remix-run/react';
+import {getUser} from './utils/session.server';
 import styles from './styles/app.css';
 
 import type {MetaFunction} from '@remix-run/node';
@@ -21,6 +15,14 @@ export const meta: MetaFunction = () => ({
 export function links() {
     return [{rel: 'stylesheet', href: styles}];
 }
+
+export const loader = async ({request}) => {
+    const user = await getUser(request);
+    const data = {
+        user,
+    };
+    return data;
+};
 export default function App() {
     return (
         <Document>
@@ -48,10 +50,9 @@ function Document({children, title}) {
 }
 
 function Layout({children}) {
+    const {user} = useLoaderData();
     const [isMenuShown, showMenu] = useState(false);
-    const handleClick = (par) => {
-        console.log(par);
-    };
+
     return (
         <>
             <nav className='relative container mx-auto p-6'>
@@ -77,7 +78,15 @@ function Layout({children}) {
                     </div>
                     <div className='hidden md:flex space-x-6'>
                         <Link to='./projects'>Projects</Link>
-                        <Link to='./signin'>Sign In</Link>
+                        {user ? (
+                            <form action='/auth/signout' method='post'>
+                                <button className='' type='submit'>
+                                    Sign out
+                                </button>
+                            </form>
+                        ) : (
+                            <Link to='./auth/signin'>Sign In</Link>
+                        )}
                     </div>
 
                     <Link
@@ -108,7 +117,7 @@ function Layout({children}) {
                     } self-end py-8 mt-10 space-y-6 font-bold bg-white sm:w-auto sm:self-center left-6 right-6 drop-shadow-md`}
                 >
                     <Link to={'/projects'}>Projects</Link>
-                    <Link to={'./signin'}>Sign in</Link>
+                    <Link to={'./auth/signin'}>Sign in</Link>
                 </div>
             </nav>
             <div className='container mx-auto p-6'>{children}</div>

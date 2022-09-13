@@ -7,6 +7,7 @@ export const loader = async () => {
         projects: await db.project.findMany(),
     };
 
+    console.log(data);
     return data;
 };
 
@@ -35,7 +36,7 @@ export default function Projects() {
                             <h3 className='font-bold text-2xl'>{p.name}</h3>
                         </Link>
                         <p>
-                            {`Created by ${p.createdBy}, ${new Date(
+                            {`Created by ${p.user}, ${new Date(
                                 p.createdAt,
                             ).toLocaleString()}`}
                         </p>
