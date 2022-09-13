@@ -1,6 +1,7 @@
-import { db } from '~/utils/db.server';
+import {db} from '~/utils/db.server';
 
-import { json, redirect } from '@remix-run/node';
+import {json, redirect} from '@remix-run/node';
+import {getUser} from '~/utils/session.server';
 
 const validateName = (str: string) => {
     if (typeof str !== 'string' || str.length === 0)
@@ -17,9 +18,9 @@ export const action = async ({request}) => {
     const form = await request.formData();
     const name = form.get('projectname');
     const description = form.get('projectdescription');
-    const createdBy = 'Charlie';
+    const user = await getUser(request);
 
-    const project = {name, description, createdBy};
+    const project = {name, description, userId: user.id};
     const fieldErrors = {
         name: validateName(name),
         description: validateDesc(description),

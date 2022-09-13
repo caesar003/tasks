@@ -8,7 +8,11 @@ export const loader = async ({request}) => {
     const user = await getUser(request);
     if (!user) return redirect('/auth/signin');
     const data = {
-        projects: await db.project.findMany(),
+        projects: await db.project.findMany({
+            include: {
+                user: true,
+            },
+        }),
     };
 
     // console.log(data);
@@ -40,7 +44,7 @@ export default function Projects() {
                             <h3 className='font-bold text-2xl'>{p.name}</h3>
                         </Link>
                         <p>
-                            {`Created by ${p.user}, ${new Date(
+                            {`Created by ${p.user.username}, ${new Date(
                                 p.createdAt,
                             ).toLocaleString()}`}
                         </p>
