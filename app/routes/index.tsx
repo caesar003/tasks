@@ -4,7 +4,6 @@ import {useLoaderData} from '@remix-run/react';
 import {redirect} from '@remix-run/node';
 
 export const loader = async ({request}) => {
-    console.log(request);
     const user = await getUser(request);
     if (!user) return redirect('/auth/signin');
     return null;

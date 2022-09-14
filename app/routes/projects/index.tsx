@@ -15,7 +15,6 @@ export const loader = async ({request}) => {
         }),
     };
 
-    // console.log(data);
     return data;
 };
 

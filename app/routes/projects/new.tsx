@@ -26,7 +26,6 @@ export const action = async ({request}) => {
         description: validateDesc(description),
     };
     if (Object.values(fieldErrors).some(Boolean)) {
-        console.log('this is wrong');
         return badRequest({fieldErrors, project});
     }
     const post = await db.project.create({data: project});

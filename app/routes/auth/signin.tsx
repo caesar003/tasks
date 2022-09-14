@@ -11,7 +11,6 @@ import {json, redirect} from '@remix-run/node';
 import {useActionData} from '@remix-run/react';
 
 export const loader = async ({request}) => {
-    console.log(request);
     const user = await getUser(request);
     if (user) return redirect('/');
     return null;
@@ -64,7 +63,6 @@ export const action = async ({request}) => {
                     fields,
                     fieldErrors: {username: 'Invalid credentials'},
                 });
-            else console.log(user);
             return createUserSession(user.id, '/projects');
         }
         case 'signup': {
@@ -92,7 +90,6 @@ export const action = async ({request}) => {
         }
     }
 
-    // console.log(fields);
     return {fields, fieldErrors};
 };
 
