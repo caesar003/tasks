@@ -97,6 +97,13 @@ export const action = async ({request}) => {
             });
             return redirect(`/projects/${projectId}`);
         }
+        case 'deleteTask': {
+            const id = form.get('taskId');
+            await db.task.delete({
+                where: {id},
+            });
+            return redirect(`/projects/${projectId}`);
+        }
 
         default: {
             return {};
@@ -108,6 +115,7 @@ export default function Project() {
     const [isModalOpen, openModal] = useState(false);
     const [isTaskFormShown, showForm] = useState(false);
     const [isUpdatingTask, initUpdateTask] = useState('');
+    const [isDeletingTask, initDeleteTask] = useState('');
     const actionData = useActionData();
     const {params, project, loggedInUser, tasks} = useLoaderData();
     const {
@@ -124,6 +132,11 @@ export default function Project() {
         initUpdateTask(taskId);
     };
     const editedTask = (taskId) => tasks.find((m) => m.id === taskId);
+    const handleDeleteBtn = (taskId) => {
+        // console.log(taskId);
+        initDeleteTask(taskId);
+    };
+    const toDeleteTask = (taskId) => tasks.find((m) => m.id === taskId);
     const formatFormDate = (date) => {
         return new Date(date)
             .toJSON()
@@ -210,10 +223,16 @@ export default function Project() {
                                 value={projectId}
                             />
                             <input type='hidden' name='userId' value={userId} />
-
+                            <button
+                                onClick={() => handleEditBtn('')}
+                                type='button'
+                                className='rounded bg-orange-500 p-2 mx-1'
+                            >
+                                Reset
+                            </button>
                             <button
                                 type='submit'
-                                className='rounded bg-peach p-2'
+                                className='rounded bg-peach p-2 mx-1'
                             >
                                 Save
                             </button>
@@ -286,6 +305,7 @@ export default function Project() {
                                     <button
                                         title='Delete'
                                         className='block bg-red-600 hover:bg-red-400 text-white m-1 p-0.5 rounded'
+                                        onClick={() => handleDeleteBtn(task.id)}
                                     >
                                         <svg
                                             xmlns='http://www.w3.org/2000/svg'
@@ -344,6 +364,7 @@ export default function Project() {
                                         name='requestType'
                                         value='deleteProject'
                                     />
+
                                     <input
                                         type='hidden'
                                         name='projectId'
@@ -356,6 +377,66 @@ export default function Project() {
                                     />
                                     <button
                                         onClick={() => openModal(false)}
+                                        className='btn btn-cancel'
+                                        type='button'
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        className='btn btn-delete'
+                                        type='submit'
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                )}
+                {isDeletingTask && (
+                    <form method='post'>
+                        <div className='modal-background'>
+                            <div className='modal-dialog'>
+                                <div className='modal-header'>
+                                    <h1> Delete task? </h1>
+                                    <button
+                                        onClick={() => handleDeleteBtn(null)}
+                                        type='button'
+                                        className='close-btn'
+                                    >
+                                        x
+                                    </button>
+                                </div>
+                                <div className='modal-body'>
+                                    <p>
+                                        Proceed with care, as it causes
+                                        permanent data loss. <br />
+                                    </p>
+                                </div>
+                                <div className='modal-footer'>
+                                    <input
+                                        type='hidden'
+                                        name='requestType'
+                                        value='deleteTask'
+                                    />
+                                    <input
+                                        type='hidden'
+                                        name='taskId'
+                                        value={toDeleteTask(isDeletingTask).id}
+                                    />
+                                    <input
+                                        type='hidden'
+                                        name='projectId'
+                                        value={projectId}
+                                    />
+                                    <input
+                                        type='hidden'
+                                        name='userId'
+                                        value={projectUser.id}
+                                    />
+                                    <button
+                                        onClick={() => handleDeleteBtn(null)}
                                         className='btn btn-cancel'
                                         type='button'
                                     >
