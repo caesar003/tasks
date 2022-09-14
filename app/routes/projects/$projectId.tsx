@@ -49,7 +49,6 @@ export const action = async ({request}) => {
 
     switch (reqType) {
         case 'deleteProject': {
-            // ('deleting the project');
             if (user.id === userId)
                 await db.project.delete({
                     where: {id: projectId},
@@ -79,6 +78,26 @@ export const action = async ({request}) => {
             return redirect(`/projects/${projectId}`);
         }
 
+        case 'editTask': {
+            const name = form.get('taskName');
+            const taskId = form.get('taskId');
+            const due = form.get('due');
+
+            const task = {
+                name,
+                due: new Date(due),
+            };
+            const fieldErrors = validateNewTask({name, due});
+            if (Object.values(fieldErrors).some(Boolean)) {
+                return badRequest({fieldErrors, task});
+            }
+            await db.task.update({
+                data: task,
+                where: {id: taskId},
+            });
+            return redirect(`/projects/${projectId}`);
+        }
+
         default: {
             return {};
         }
@@ -88,7 +107,7 @@ export const action = async ({request}) => {
 export default function Project() {
     const [isModalOpen, openModal] = useState(false);
     const [isTaskFormShown, showForm] = useState(false);
-
+    const [isUpdatingTask, initUpdateTask] = useState('');
     const actionData = useActionData();
     const {params, project, loggedInUser, tasks} = useLoaderData();
     const {
@@ -100,6 +119,17 @@ export default function Project() {
         updatedAt,
         user: projectUser,
     } = project;
+    const handleEditBtn = (taskId) => {
+        console.log(taskId);
+        initUpdateTask(taskId);
+    };
+    const editedTask = (taskId) => tasks.find((m) => m.id === taskId);
+    const formatFormDate = (date) => {
+        return new Date(date)
+            .toJSON()
+            .slice(0, new Date(date).toJSON().indexOf('.'));
+    };
+
     return (
         <div className='md:grid md:grid-cols-2 md:gap-4'>
             <div className='p-2'>
@@ -122,6 +152,11 @@ export default function Project() {
                                 name='taskName'
                                 type='text'
                                 id='taskName'
+                                defaultValue={
+                                    isUpdatingTask
+                                        ? editedTask(isUpdatingTask).name
+                                        : ''
+                                }
                                 className='border w-full mt-1 mb-2 rounded'
                             />
                             <div className='text-red-600'>
@@ -131,13 +166,20 @@ export default function Project() {
                         </div>
                         <div className='mx-auto w-3/4'>
                             <label htmlFor='due' className=''>
-                                When?
+                                When should it be finished?
                             </label>
                             <br />
                             <input
                                 type='datetime-local'
                                 id='due'
                                 name='due'
+                                defaultValue={
+                                    isUpdatingTask
+                                        ? formatFormDate(
+                                              editedTask(isUpdatingTask).due,
+                                          )
+                                        : ''
+                                }
                                 className='border w-full mt-1 mb-2 rounded'
                             />
                             <div className='text-red-600'>
@@ -149,7 +191,18 @@ export default function Project() {
                             <input
                                 type='hidden'
                                 name='requestType'
-                                value='createTask'
+                                value={
+                                    isUpdatingTask ? 'editTask' : 'createTask'
+                                }
+                            />
+                            <input
+                                type='hidden'
+                                name='taskId'
+                                value={
+                                    isUpdatingTask
+                                        ? editedTask(isUpdatingTask).id
+                                        : ''
+                                }
                             />
                             <input
                                 type='hidden'
@@ -174,31 +227,52 @@ export default function Project() {
 
                     <hr />
                 </header>
+
                 <div>
                     {tasks.map((task) => (
-                        <div key={task.id} className='mb-3 border-b-[2px]'>
-                            <div className='flex justify-between items-start'>
+                        <div key={task.id}>
+                            <div className='text-2xl text-bold'>
+                                {task.name}
+                            </div>
+                            <div className='flex justify-between'>
                                 <div>
-                                    <p>{task.name}</p>
-                                </div>
-                                <div className='flex'>
-                                    <div className='mx-1 p-1 rounded bg-slate-400 border'>
-                                        <select
-                                            name=''
-                                            id=''
-                                            disabled={true}
-                                            defaultValue='not started'
-                                        >
-                                            <option value='not started'>
-                                                Not started
-                                            </option>
-                                            <option value='In progress'>
-                                                in progress
-                                            </option>
-                                            <option value='done'>Done</option>
-                                        </select>
+                                    <div>
+                                        added:
+                                        {new Date(
+                                            task.createdAt,
+                                        ).toLocaleString()}
                                     </div>
-                                    <div className='mx-1 p-1 rounded bg-aquamarine border'>
+                                    <div>
+                                        Due:
+                                        {new Date(task.due).toLocaleString()}
+                                    </div>
+                                    <div>Status: {task.status}</div>
+                                </div>
+                                <div>
+                                    <button
+                                        title='Start'
+                                        className='block bg-limeGreen hover:bg-green-600 text-black hover:text-gray-400 m-1 p-0.5 rounded border border-slate-700'
+                                    >
+                                        <svg
+                                            xmlns='http://www.w3.org/2000/svg'
+                                            fill='none'
+                                            viewBox='0 0 24 24'
+                                            strokeWidth={1.5}
+                                            stroke='currentColor'
+                                            className='w-6 h-6'
+                                        >
+                                            <path
+                                                strokeLinecap='round'
+                                                strokeLinejoin='round'
+                                                d='M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z'
+                                            />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        title='Edit'
+                                        className='block bg-aquaMarine border border-slate-700 m-1 p-0.5 rounded'
+                                        onClick={() => handleEditBtn(task.id)}
+                                    >
                                         <svg
                                             xmlns='http://www.w3.org/2000/svg'
                                             viewBox='0 0 24 24'
@@ -208,8 +282,11 @@ export default function Project() {
                                             <path d='M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32l8.4-8.4z' />
                                             <path d='M5.25 5.25a3 3 0 00-3 3v10.5a3 3 0 003 3h10.5a3 3 0 003-3V13.5a.75.75 0 00-1.5 0v5.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V8.25a1.5 1.5 0 011.5-1.5h5.25a.75.75 0 000-1.5H5.25z' />
                                         </svg>
-                                    </div>
-                                    <div className='mx-1 bg-red-700 text-white p-1 rounded'>
+                                    </button>
+                                    <button
+                                        title='Delete'
+                                        className='block bg-red-600 hover:bg-red-400 text-white m-1 p-0.5 rounded'
+                                    >
                                         <svg
                                             xmlns='http://www.w3.org/2000/svg'
                                             viewBox='0 0 24 24'
@@ -222,17 +299,8 @@ export default function Project() {
                                                 clipRule='evenodd'
                                             />
                                         </svg>
-                                    </div>
+                                    </button>
                                 </div>
-                            </div>
-                            <div className='mt-2'>
-                                <p>
-                                    Added:
-                                    {new Date(task.createdAt).toLocaleString()}
-                                </p>
-                                <p>
-                                    Due: {new Date(task.due).toLocaleString()}
-                                </p>
                             </div>
                         </div>
                     ))}

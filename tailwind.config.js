@@ -11,7 +11,7 @@ module.exports = {
         extend: {
             colors: {
                 aliceBlue: '#F0F8FF',
-                aquamarine: '#7FFFD4',
+                aquaMarine: '#7FFFD4',
                 royalBlue: '#00539CFF',
                 electricBlue: '#4831D4',
                 peach: '#eea47fff',
